@@ -1,7 +1,7 @@
 """
 Drop in serializer mixins.
 """
-
+from django.utils.functional import cached_property
 from rest_framework_serializer_field_permissions.middleware import RequestMiddleware
 
 
@@ -15,7 +15,16 @@ class FieldPermissionSerializerMixin(object):
             given_names = fields.CharField(permission_classes=(IsAuthenticated(), ))
     """
 
-    @property
+    def to_representation(self, instance):
+        # Invalidate cache for fields
+        try:
+            del self.fields
+        except AttributeError:
+            pass
+
+        return super(FieldPermissionSerializerMixin, self).to_representation(instance)
+
+    @cached_property
     def fields(self):
         """
         Supercedes drf's serializers.ModelSerializer's fields property
