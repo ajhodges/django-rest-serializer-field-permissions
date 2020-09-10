@@ -1,6 +1,8 @@
 """
 Drop in serializer mixins.
 """
+
+from django.db.models import Model
 from django.utils.functional import cached_property
 
 
@@ -19,7 +21,8 @@ class FieldPermissionSerializerMixin(object):
         self.current_instance = None
 
     def to_representation(self, instance):
-        self.current_instance = instance
+        if isinstance(instance, Model):
+            self.current_instance = instance
 
         # Invalidate cache for fields
         try:
